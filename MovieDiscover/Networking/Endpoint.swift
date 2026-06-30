@@ -34,11 +34,11 @@ enum Endpoint {
         }
     }
  
-    func url(apiKey: String) -> URL? {
+    func url() -> URL? {
         var components = URLComponents(string: Endpoint.baseURL + path)
-        var items = [URLQueryItem(name: "api_key", value: apiKey)]
-        items.append(contentsOf: queryItems)
-        components?.queryItems = items
+        if !queryItems.isEmpty {
+            components?.queryItems = queryItems
+        }
         return components?.url
     }
 }
