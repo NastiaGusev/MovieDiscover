@@ -29,9 +29,22 @@
 		AB9CCC282FF3C1E2005FB79E /* MovieDiscoverUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieDiscoverUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AB9CCC4F2FF3C979005FB79E /* Exceptions for "MovieDiscover" folder in "MovieDiscover" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AB9CCC0E2FF3C1E1005FB79E /* MovieDiscover */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AB9CCC112FF3C1E1005FB79E /* MovieDiscover */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AB9CCC4F2FF3C979005FB79E /* Exceptions for "MovieDiscover" folder in "MovieDiscover" target */,
+			);
 			path = MovieDiscover;
 			sourceTree = "<group>";
 		};
@@ -271,6 +284,8 @@
 /* Begin XCBuildConfiguration section */
 		AB9CCC302FF3C1E2005FB79E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = AB9CCC112FF3C1E1005FB79E /* MovieDiscover */;
+			baseConfigurationReferenceRelativePath = Resources/Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -335,6 +350,8 @@
 		};
 		AB9CCC312FF3C1E2005FB79E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = AB9CCC112FF3C1E1005FB79E /* MovieDiscover */;
+			baseConfigurationReferenceRelativePath = Resources/Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -400,6 +417,7 @@
 				DEVELOPMENT_TEAM = CJ5XJV3C6G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MovieDiscover/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -432,6 +450,7 @@
 				DEVELOPMENT_TEAM = CJ5XJV3C6G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MovieDiscover/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
