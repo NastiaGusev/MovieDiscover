@@ -63,7 +63,7 @@ struct MovieDetailView: View {
         }
         return movie.backdropURL
     }
-
+    
     private var backdrop: some View {
         AsyncImage(url: backdropURL) { phase in
             if case .success(let image) = phase {
@@ -240,17 +240,7 @@ struct MovieDetailView: View {
 
 #Preview {
     NavigationStack {
-        MovieDetailView(
-            movie: Movie(
-                id: 27205,
-                title: "Inception",
-                overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a target's mind.",
-                posterPath: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
-                backdropPath: "/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
-                releaseDate: "2010-07-16",
-                voteAverage: 8.4
-            )
-        )
+        MovieDetailView(movie: .preview)
     }
     .modelContainer(for: FavoriteMovie.self, inMemory: true)
 }

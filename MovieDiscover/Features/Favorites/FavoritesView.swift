@@ -71,17 +71,6 @@ struct FavoritesView: View {
         for: FavoriteMovie.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    
-    let sample = FavoriteMovie(
-        id: 27205,
-        title: "Inception",
-        posterPath: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
-        backdropPath: "/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
-        overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a target's mind.",
-        voteAverage: 8.4
-    )
-    container.mainContext.insert(sample)
-    
-    return FavoritesView()
-        .modelContainer(container)
+    container.mainContext.insert(FavoriteMovie.preview)
+    return FavoritesView().modelContainer(container)
 }
