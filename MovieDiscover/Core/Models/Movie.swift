@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Movie: Decodable, Identifiable, Hashable {
+nonisolated struct Movie: Decodable, Identifiable, Hashable {
     let id: Int
     let title: String
     let overview: String
@@ -27,9 +27,23 @@ struct Movie: Decodable, Identifiable, Hashable {
     }
 }
 
-struct MovieListResponse: Decodable {
+nonisolated struct MovieListResponse: Decodable {
     let page: Int
     let results: [Movie]
     let totalPages: Int
     let totalResults: Int
+}
+
+extension FavoriteMovie {
+    var asMovie: Movie {
+        Movie(
+            id: id,
+            title: title,
+            overview: overview,
+            posterPath: posterPath,
+            backdropPath: nil,
+            releaseDate: nil,
+            voteAverage: voteAverage
+        )
+    }
 }

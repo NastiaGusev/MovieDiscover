@@ -10,72 +10,226 @@ import SwiftData
 
 struct MovieDetailView: View {
     let movie: Movie
-
+    
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
     @Query private var allFavorites: [FavoriteMovie]
-
+    
+    @State private var viewModel: MovieDetailViewModel
+    @State private var showTrailer = false
+    
+    init(movie: Movie) {
+        self.movie = movie
+        _viewModel = State(initialValue: MovieDetailViewModel(movieID: movie.id))
+    }
+    
     private var isFavorited: Bool {
         allFavorites.contains { $0.id == movie.id }
     }
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                AsyncImage(url: movie.backdropURL ?? movie.posterURL) { phase in
-                    if case .success(let image) = phase {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        Rectangle()
-                            .fill(.gray.opacity(0.2))
-                    }
-                }
-                .frame(height: 220)
-                .clipped()
-
+                backdrop
+                
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text(movie.title)
-                            .font(.title2)
-                            .bold()
-
-                        Spacer()
-
-                        Button {
-                            toggleFavorite()
-                        } label: {
-                            Image(systemName: isFavorited ? "heart.fill" : "heart")
-                                .foregroundStyle(isFavorited ? .red : .secondary)
-                                .font(.title3)
-                        }
-                    }
-
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .foregroundStyle(.yellow)
-                            .font(.caption)
-                        Text(String(format: "%.1f", movie.voteAverage))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Text(movie.overview)
-                        .font(.body)
+                    header
+                    ratingRow
+                    metadataRow
+                    taglineView
+                    Text(movie.overview).font(.body)
+                    trailerButton
+                    detailStatus
+                    castSection
+                    providersSection
+                    recommendedSection
                 }
                 .padding(.horizontal)
             }
         }
         .navigationTitle(movie.title)
         .navigationBarTitleDisplayMode(.inline)
+        .task { await viewModel.load() }
+        .sheet(isPresented: $showTrailer) {
+            if let key = viewModel.trailerKey,
+               let url = URL(string: "https://www.youtube.com/watch?v=\(key)") {
+                SafariView(url: url)
+            }
+        }
     }
-
+    
+    private var backdrop: some View {
+        AsyncImage(url: movie.backdropURL ?? movie.posterURL) { phase in
+            if case .success(let image) = phase {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            } else {
+                Rectangle().fill(.gray.opacity(0.2))
+                    .aspectRatio(16/9, contentMode: .fit)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private var header: some View {
+        HStack {
+            Text(movie.title).font(.title2).bold()
+            Spacer()
+            Button(action: toggleFavorite) {
+                Image(systemName: isFavorited ? "heart.fill" : "heart")
+                    .foregroundStyle(isFavorited ? .red : .secondary)
+                    .font(.title3)
+            }
+        }
+    }
+    
+    private var ratingRow: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "star.fill").foregroundStyle(.yellow).font(.caption)
+            Text(String(format: "%.1f", movie.voteAverage))
+                .font(.subheadline).foregroundStyle(.secondary)
+        }
+    }
+    
+    @ViewBuilder
+    private var metadataRow: some View {
+        if case .loaded(let d) = viewModel.state {
+            let parts = [
+                d.releaseYear,
+                d.genres.isEmpty ? nil : d.genres.map(\.name).joined(separator: "/"),
+                d.formattedRuntime
+            ].compactMap { $0 }
+            
+            if !parts.isEmpty {
+                Text(parts.joined(separator: " ‧ "))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var taglineView: some View {
+        if case .loaded(let d) = viewModel.state, let tagline = d.tagline, !tagline.isEmpty {
+            Text(tagline).font(.subheadline).italic().foregroundStyle(.secondary)
+        }
+    }
+    
+    @ViewBuilder
+    private var trailerButton: some View {
+        if viewModel.trailerKey != nil {
+            Button { showTrailer = true } label: {
+                Label("Trailer", systemImage: "play.circle.fill")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+    
+    @ViewBuilder
+    private var detailStatus: some View {
+        switch viewModel.state {
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity)
+        case .error(let message):
+            Text(message).font(.caption).foregroundStyle(.red)
+        case .loaded:
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    private var castSection: some View {
+        if !viewModel.cast.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Cast").font(.headline)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.cast) { member in
+                            VStack(spacing: 4) {
+                                AsyncImage(url: member.profileURL) { phase in
+                                    if case .success(let img) = phase {
+                                        img.resizable().aspectRatio(contentMode: .fill)
+                                    } else {
+                                        Circle().fill(.gray.opacity(0.2))
+                                    }
+                                }
+                                .frame(width: 70, height: 70)
+                                .clipShape(Circle())
+                                Text(member.name).font(.caption).lineLimit(1)
+                                Text(member.character).font(.caption2)
+                                    .foregroundStyle(.secondary).lineLimit(1)
+                                
+                            }
+                            .frame(width: 80)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var recommendedSection: some View {
+        if !viewModel.recommendations.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Recommended").font(.headline)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.recommendations) { rec in
+                            NavigationLink {
+                                MovieDetailView(movie: rec)
+                            } label: {
+                                AsyncImage(url: rec.posterURL) { phase in
+                                    if case .success(let img) = phase {
+                                        img.resizable().aspectRatio(contentMode: .fill)
+                                    } else {
+                                        Rectangle().fill(.gray.opacity(0.2))
+                                    }
+                                }
+                                .frame(width: 100, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var providersSection: some View {
+        if case .loaded = viewModel.state {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Where to Watch").font(.headline)
+                if let flatrate = viewModel.providers?.flatrate, !flatrate.isEmpty {
+                    HStack(spacing: 10) {
+                        ForEach(flatrate) { provider in
+                            AsyncImage(url: provider.logoURL) { phase in
+                                if case .success(let img) = phase {
+                                    img.resizable().aspectRatio(contentMode: .fit)
+                                } else {
+                                    RoundedRectangle(cornerRadius: 8).fill(.gray.opacity(0.2))
+                                }
+                            }
+                            .frame(width: 44, height: 44)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                } else {
+                    Text("Not available on streaming in your region")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+    
     private func toggleFavorite() {
         if let existing = allFavorites.first(where: { $0.id == movie.id }) {
             modelContext.delete(existing)
         } else {
-            let favorite = FavoriteMovie(from: movie)
-            modelContext.insert(favorite)
+            modelContext.insert(FavoriteMovie(from: movie))
         }
     }
 }
@@ -84,13 +238,13 @@ struct MovieDetailView: View {
     NavigationStack {
         MovieDetailView(
             movie: Movie(
-                id: 1,
-                title: "Sample Movie",
-                overview: "A short sample overview describing the plot of this preview movie.",
-                posterPath: nil,
-                backdropPath: nil,
-                releaseDate: "2026-01-01",
-                voteAverage: 7.8
+                id: 27205,
+                title: "Inception",
+                overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a target's mind.",
+                posterPath: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
+                backdropPath: "/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
+                releaseDate: "2010-07-16",
+                voteAverage: 8.4
             )
         )
     }

@@ -24,26 +24,30 @@ struct FavoritesView: View {
                 } else {
                     List {
                         ForEach(favorites) { favorite in
-                            HStack(spacing: 12) {
-                                AsyncImage(url: favorite.posterURL) { phase in
-                                    if case .success(let image) = phase {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                    } else {
-                                        Rectangle().fill(.gray.opacity(0.2))
+                            NavigationLink {
+                                MovieDetailView(movie: favorite.asMovie)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    AsyncImage(url: favorite.posterURL) { phase in
+                                        if case .success(let image) = phase {
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                        } else {
+                                            Rectangle().fill(.gray.opacity(0.2))
+                                        }
                                     }
-                                }
-                                .frame(width: 50, height: 75)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .frame(width: 50, height: 75)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(favorite.title)
-                                        .font(.headline)
-                                    Text(favorite.overview)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(favorite.title)
+                                            .font(.headline)
+                                        Text(favorite.overview)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                    }
                                 }
                             }
                         }
@@ -63,6 +67,20 @@ struct FavoritesView: View {
 }
 
 #Preview {
-    FavoritesView()
-        .modelContainer(for: FavoriteMovie.self, inMemory: true)
+    let container = try! ModelContainer(
+        for: FavoriteMovie.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+
+    let sample = FavoriteMovie(
+        id: 27205,
+        title: "Inception",
+        posterPath: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
+        overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a target's mind.",
+        voteAverage: 8.4
+    )
+    container.mainContext.insert(sample)
+
+    return FavoritesView()
+        .modelContainer(container)
 }

@@ -16,6 +16,11 @@ struct ContentView: View {
                     Label("Browse", systemImage: "house")
                 }
             
+            StreamingView()
+                .tabItem {
+                    Label("Streaming", systemImage: "play.tv")
+                }
+            
             SearchView()
                 .tabItem {
                     Label("Search", systemImage: "magnifyingglass")
