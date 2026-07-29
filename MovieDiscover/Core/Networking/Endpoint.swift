@@ -17,6 +17,8 @@ enum Endpoint {
     case watchProviders(id: Int)
     case discoverByProvider(providerIDs: [Int], region: String)
     case watchProviderList(region: String)
+    case genreList
+    case discoverByGenre(genreID: Int)
     
     private static let baseURL = API.baseURL
     
@@ -40,12 +42,16 @@ enum Endpoint {
             return "/discover/movie"
         case .watchProviderList:
             return "/watch/providers/movie"
+        case .genreList:
+            return "/genre/movie/list"
+        case .discoverByGenre:
+            return "/discover/movie"
         }
     }
     
     private var queryItems: [URLQueryItem] {
         switch self {
-        case .trendingMovies, .movieDetail, .credits, .videos, .recommendations, .watchProviders:
+        case .trendingMovies, .movieDetail, .credits, .videos, .recommendations, .watchProviders, .genreList:
             return []
         case .searchMovies(let query):
             return [URLQueryItem(name: "query", value: query)]
@@ -58,6 +64,8 @@ enum Endpoint {
             ]
         case .watchProviderList(let region):
             return [URLQueryItem(name: "watch_region", value: region)]
+        case .discoverByGenre(let genreID):
+            return [URLQueryItem(name: "with_genres", value: String(genreID))]
         }
     }
     

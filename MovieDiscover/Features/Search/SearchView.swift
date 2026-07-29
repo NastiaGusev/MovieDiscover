@@ -38,16 +38,16 @@ struct SearchView: View {
         } else {
             List(viewModel.results) { movie in
                 NavigationLink(value: movie) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: Spacing.md) {
                         AsyncImage(url: movie.posterURL) { phase in
                             if case .success(let image) = phase {
                                 image.resizable().aspectRatio(contentMode: .fill)
                             } else {
-                                Rectangle().fill(.gray.opacity(0.2))
+                                Rectangle().fill(Color.placeholder)
                             }
                         }
                         .frame(width: 46, height: 69)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
                         
                         VStack(alignment: .leading) {
                             Text(movie.title)

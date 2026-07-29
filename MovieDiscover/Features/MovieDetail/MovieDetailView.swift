@@ -29,10 +29,10 @@ struct MovieDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Spacing.lg) {
                 backdrop
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: Spacing.md) {
                     header
                     ratingRow
                     metadataRow
@@ -69,8 +69,8 @@ struct MovieDetailView: View {
             if case .success(let image) = phase {
                 image.resizable().aspectRatio(contentMode: .fit)
             } else {
-                Rectangle().fill(.gray.opacity(0.2))
-                    .aspectRatio(16/9, contentMode: .fit)
+                Rectangle().fill(Color.placeholder)
+                    .aspectRatio(AspectRatio.backDrop, contentMode: .fit)
             }
         }
         .frame(maxWidth: .infinity)
@@ -89,7 +89,7 @@ struct MovieDetailView: View {
     }
     
     private var ratingRow: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Spacing.xs) {
             Image(systemName: "star.fill").foregroundStyle(.yellow).font(.caption)
             Text(String(format: "%.1f", movie.voteAverage))
                 .font(.subheadline).foregroundStyle(.secondary)
@@ -145,17 +145,17 @@ struct MovieDetailView: View {
     @ViewBuilder
     private var castSection: some View {
         if !viewModel.cast.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text(L10n.Detail.cast).font(.headline)
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: Spacing.md) {
                         ForEach(viewModel.cast) { member in
-                            VStack(spacing: 4) {
+                            VStack(spacing: Spacing.xs) {
                                 AsyncImage(url: member.profileURL) { phase in
                                     if case .success(let img) = phase {
                                         img.resizable().aspectRatio(contentMode: .fill)
                                     } else {
-                                        Circle().fill(.gray.opacity(0.2))
+                                        Circle().fill(Color.placeholder)
                                     }
                                 }
                                 .frame(width: 70, height: 70)
@@ -176,23 +176,16 @@ struct MovieDetailView: View {
     @ViewBuilder
     private var recommendedSection: some View {
         if !viewModel.recommendations.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text(L10n.Detail.recommended).font(.headline)
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: Spacing.md) {
                         ForEach(viewModel.recommendations) { rec in
                             NavigationLink {
                                 MovieDetailView(movie: rec)
                             } label: {
-                                AsyncImage(url: rec.posterURL) { phase in
-                                    if case .success(let img) = phase {
-                                        img.resizable().aspectRatio(contentMode: .fill)
-                                    } else {
-                                        Rectangle().fill(.gray.opacity(0.2))
-                                    }
-                                }
-                                .frame(width: 100, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                MoviePosterCell(movie: rec)
+                                    .frame(width: 100)
                             }
                         }
                     }
@@ -204,7 +197,7 @@ struct MovieDetailView: View {
     @ViewBuilder
     private var providersSection: some View {
         if case .loaded = viewModel.state {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text(L10n.Detail.whereToWatch).font(.headline)
                 if let flatrate = viewModel.providers?.flatrate, !flatrate.isEmpty {
                     HStack(spacing: 10) {
@@ -213,11 +206,11 @@ struct MovieDetailView: View {
                                 if case .success(let img) = phase {
                                     img.resizable().aspectRatio(contentMode: .fit)
                                 } else {
-                                    RoundedRectangle(cornerRadius: 8).fill(.gray.opacity(0.2))
+                                    RoundedRectangle(cornerRadius: CornerRadius.md).fill(Color.placeholder)
                                 }
                             }
                             .frame(width: 44, height: 44)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
                         }
                     }
                 } else {

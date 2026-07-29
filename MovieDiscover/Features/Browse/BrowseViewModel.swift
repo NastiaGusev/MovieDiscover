@@ -9,27 +9,59 @@ import Foundation
 
 @Observable
 final class BrowseViewModel {
-    private(set) var movies: [Movie] = []
-    private(set) var isLoading = false
-    private(set) var errorMessage: String?
-
+    enum State {
+        case loading
+        case loaded([Movie])
+        case error(String)
+    }
+    
+    private(set) var genres: [Genre] = []
+    private(set) var selectedGenreID: Int?
+    private(set) var state: State = .loading
+    
     private let apiClient: APIClientProtocol
-
+    private var didLoad = false
+    
     init(apiClient: APIClientProtocol = APIClient.shared) {
         self.apiClient = apiClient
     }
-
-    func loadTrendingMovies() async {
-        isLoading = true
-        errorMessage = nil
-
+    
+    @MainActor
+    func onAppear() async {
+        guard !didLoad else { return }
+        didLoad = true
+        await loadMovies()
+        await loadGenres()
+    }
+    
+    @MainActor
+    func select(genreID: Int?) async {
+        selectedGenreID = genreID
+        await loadMovies()
+    }
+    
+    @MainActor
+    private func loadGenres() async {
         do {
-            let response: MovieListResponse = try await apiClient.request(.trendingMovies)
-            movies = response.results
+            let response: GenreListResponse = try await apiClient.request(.genreList)
+            genres = response.genres
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription ?? error.localizedDescription
+            // non-fatal — bar just shows Trending only
         }
-
-        isLoading = false
+    }
+    
+    @MainActor
+    private func loadMovies() async {
+        state = .loading
+        do {
+            let response: MovieListResponse = if let id = selectedGenreID {
+                try await apiClient.request(.discoverByGenre(genreID: id))
+            } else {
+                try await apiClient.request(.trendingMovies)
+            }
+            state = .loaded(response.results)
+        } catch {
+            state = .error(error.localizedDescription)
+        }
     }
 }

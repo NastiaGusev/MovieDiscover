@@ -39,3 +39,7 @@ nonisolated struct Genre: Codable, Identifiable {
     let name: String
 }
 
+nonisolated struct GenreListResponse: Codable {
+    let genres: [Genre]
+}
+

@@ -10,8 +10,6 @@ import SwiftData
 struct StreamingView: View {
     @State private var viewModel = StreamingViewModel()
     
-    private let columns = [GridItem(.adaptive(minimum: 100), spacing: 12)]
-    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -23,24 +21,7 @@ struct StreamingView: View {
                 case .error(let message):
                     Text(message).foregroundStyle(.secondary).padding()
                 case .loaded(let movies):
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(movies) { movie in
-                            NavigationLink {
-                                MovieDetailView(movie: movie)
-                            } label: {
-                                AsyncImage(url: movie.posterURL) { phase in
-                                    if case .success(let img) = phase {
-                                        img.resizable().aspectRatio(contentMode: .fill)
-                                    } else {
-                                        Rectangle().fill(.gray.opacity(0.2))
-                                    }
-                                }
-                                .frame(height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
+                    MoviePosterGrid(movies: movies, columnCount: GridColumns.streaming)
                 }
             }
             .navigationTitle(L10n.Streaming.streaming)
@@ -50,7 +31,7 @@ struct StreamingView: View {
     
     private var providerRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
+            HStack(spacing: Spacing.md) {
                 ForEach(viewModel.providers) { provider in
                     Button {
                         Task { await viewModel.select(provider.providerId) }
@@ -59,13 +40,13 @@ struct StreamingView: View {
                             if case .success(let img) = phase {
                                 img.resizable().aspectRatio(contentMode: .fit)
                             } else {
-                                RoundedRectangle(cornerRadius: 8).fill(.gray.opacity(0.2))
+                                RoundedRectangle(cornerRadius: CornerRadius.md).fill(Color.placeholder)
                             }
                         }
                         .frame(width: 50, height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
+                            RoundedRectangle(cornerRadius: CornerRadius.md)
                                 .stroke(.blue, lineWidth: viewModel.selectedProviderID == provider.providerId ? 3 : 0)
                         )
                     }

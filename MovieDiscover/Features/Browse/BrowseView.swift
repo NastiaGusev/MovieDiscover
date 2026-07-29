@@ -10,85 +10,66 @@ import SwiftUI
 struct BrowseView: View {
     @State private var viewModel = BrowseViewModel()
     
-    private let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
-    
     var body: some View {
         NavigationStack {
-            ScrollView {
+            VStack(spacing: 0) {
+                genreBar
+                    .padding(.vertical, Spacing.sm)
                 content
             }
-            .navigationTitle(L10n.Browse.trending)
-            .task {
-                await viewModel.loadTrendingMovies()
-            }
+            .navigationTitle("Browse")
+            .task { await viewModel.onAppear() }
         }
+    }
+    
+    private var genreBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Spacing.sm) {
+                pill(title: String(localized: "Trending"),
+                     isSelected: viewModel.selectedGenreID == nil) {
+                    Task { await viewModel.select(genreID: nil) }
+                }
+                ForEach(viewModel.genres) { genre in
+                    pill(title: genre.name,
+                         isSelected: viewModel.selectedGenreID == genre.id) {
+                        Task { await viewModel.select(genreID: genre.id) }
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    private func pill(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .padding(.horizontal, 14)
+                .padding(.vertical, Spacing.sm)
+                .background(isSelected ? Color.accentColor : Color.gray.opacity(0.15))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var columns: [GridItem] {
+        let count = viewModel.selectedGenreID == nil ? GridColumns.trending : GridColumns.genre
+        return Array(repeating: GridItem(.flexible(), spacing: Spacing.sm), count: count)
     }
     
     @ViewBuilder
     private var content: some View {
-        if viewModel.isLoading && viewModel.movies.isEmpty {
-            ProgressView(L10n.Browse.loadingTrendingMovies)
-                .padding(.top, 100)
-        } else if let errorMessage = viewModel.errorMessage {
-            VStack(spacing: 12) {
-                Text(errorMessage)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                Button(L10n.Error.retry) {
-                    Task { await viewModel.loadTrendingMovies() }
-                }
-            }
-            .padding(.top, 100)
-            .padding(.horizontal)
-        } else {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.movies) { movie in
-                    NavigationLink(value: movie) {
-                        MoviePosterCell(movie: movie)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding()
-            .navigationDestination(for: Movie.self) { movie in
-                MovieDetailView(movie: movie)
-            }
-        }
-    }
-}
-
-private struct MoviePosterCell: View {
-    let movie: Movie
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            AsyncImage(url: movie.posterURL) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(2/3, contentMode: .fill)
-                case .failure, .empty:
-                    Rectangle()
-                        .fill(.gray.opacity(0.2))
-                        .aspectRatio(2/3, contentMode: .fit)
-                        .overlay {
-                            Image(systemName: "film")
-                                .foregroundStyle(.secondary)
-                        }
-                @unknown default:
-                    EmptyView()
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            
-            Text(movie.title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .lineLimit(2)
+        switch viewModel.state {
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .error(let message):
+            Text(message).foregroundStyle(.secondary)
+        case .loaded(let movies):
+            MoviePosterGrid(
+                movies: movies,
+                columnCount: viewModel.selectedGenreID == nil ? GridColumns.trending : GridColumns.genre
+            )
         }
     }
 }
