@@ -15,15 +15,13 @@ nonisolated struct Movie: Decodable, Identifiable, Hashable {
     let backdropPath: String?
     let releaseDate: String?
     let voteAverage: Double
- 
+    
     var posterURL: URL? {
-        guard let posterPath else { return nil }
-        return URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
+        posterPath.map { ImageConfig.url(path: $0, size: ImageConfig.Size.poster) } ?? nil
     }
- 
+    
     var backdropURL: URL? {
-        guard let backdropPath else { return nil }
-        return URL(string: "https://image.tmdb.org/t/p/w780\(backdropPath)")
+        backdropPath.map { ImageConfig.url(path: $0, size: ImageConfig.Size.backdrop) } ?? nil
     }
 }
 
@@ -41,7 +39,7 @@ extension FavoriteMovie {
             title: title,
             overview: overview,
             posterPath: posterPath,
-            backdropPath: nil,
+            backdropPath: backdropPath,
             releaseDate: nil,
             voteAverage: voteAverage
         )

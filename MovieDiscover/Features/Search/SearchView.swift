@@ -9,18 +9,18 @@ import SwiftUI
 
 struct SearchView: View {
     @State private var viewModel = SearchViewModel()
-
+    
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Search")
-                .searchable(text: $viewModel.query, prompt: "Search movies")
+                .navigationTitle(L10n.Search.search)
+                .searchable(text: $viewModel.query, prompt: L10n.Search.searchMovies)
                 .navigationDestination(for: Movie.self) { movie in
                     MovieDetailView(movie: movie)
                 }
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         if viewModel.query.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -29,7 +29,7 @@ struct SearchView: View {
             ProgressView()
         } else if let errorMessage = viewModel.errorMessage {
             ContentUnavailableView(
-                "Something Went Wrong",
+                L10n.Error.somethingWentWrong,
                 systemImage: "exclamationmark.triangle",
                 description: Text(errorMessage)
             )
@@ -48,7 +48,7 @@ struct SearchView: View {
                         }
                         .frame(width: 46, height: 69)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
-
+                        
                         VStack(alignment: .leading) {
                             Text(movie.title)
                                 .font(.headline)

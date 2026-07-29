@@ -9,35 +9,35 @@ import SwiftUI
 
 struct BrowseView: View {
     @State private var viewModel = BrowseViewModel()
-
+    
     private let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 content
             }
-            .navigationTitle("Trending")
+            .navigationTitle(L10n.Browse.trending)
             .task {
                 await viewModel.loadTrendingMovies()
             }
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.movies.isEmpty {
-            ProgressView("Loading trending movies…")
+            ProgressView(L10n.Browse.loadingTrendingMovies)
                 .padding(.top, 100)
         } else if let errorMessage = viewModel.errorMessage {
             VStack(spacing: 12) {
                 Text(errorMessage)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                Button("Retry") {
+                Button(L10n.Error.retry) {
                     Task { await viewModel.loadTrendingMovies() }
                 }
             }
@@ -62,7 +62,7 @@ struct BrowseView: View {
 
 private struct MoviePosterCell: View {
     let movie: Movie
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             AsyncImage(url: movie.posterURL) { phase in
@@ -84,7 +84,7 @@ private struct MoviePosterCell: View {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 8))
-
+            
             Text(movie.title)
                 .font(.caption)
                 .fontWeight(.medium)

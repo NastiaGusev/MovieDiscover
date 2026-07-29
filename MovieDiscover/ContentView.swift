@@ -13,22 +13,22 @@ struct ContentView: View {
         TabView {
             BrowseView()
                 .tabItem {
-                    Label("Browse", systemImage: "house")
+                    Label(L10n.Browse.browse, systemImage: "house")
                 }
             
             StreamingView()
                 .tabItem {
-                    Label("Streaming", systemImage: "play.tv")
+                    Label(L10n.Streaming.streaming, systemImage: "play.tv")
                 }
             
             SearchView()
                 .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
+                    Label(L10n.Search.search, systemImage: "magnifyingglass")
                 }
             
             FavoritesView()
                 .tabItem {
-                    Label("Favorites", systemImage: "heart")
+                    Label(L10n.Favorites.favorites, systemImage: "heart")
                 }
         }
     }

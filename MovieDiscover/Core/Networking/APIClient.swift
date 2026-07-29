@@ -12,7 +12,11 @@ final class APIClient {
     private init() {}
 
     private var apiKey: String {
-        Bundle.main.object(forInfoDictionaryKey: "TMDB_API_KEY") as? String ?? ""
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "TMDB_API_KEY") as? String,
+              !key.isEmpty else {
+            fatalError("TMDB_API_KEY missing — add it to Secrets.xcconfig")
+        }
+        return key
     }
 
     func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {

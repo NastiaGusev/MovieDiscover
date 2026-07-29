@@ -9,9 +9,9 @@ import SwiftData
 
 struct StreamingView: View {
     @State private var viewModel = StreamingViewModel()
-
+    
     private let columns = [GridItem(.adaptive(minimum: 100), spacing: 12)]
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -43,11 +43,11 @@ struct StreamingView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationTitle("Streaming")
+            .navigationTitle(L10n.Streaming.streaming)
             .task { await viewModel.loadProviders() }
         }
     }
-
+    
     private var providerRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {

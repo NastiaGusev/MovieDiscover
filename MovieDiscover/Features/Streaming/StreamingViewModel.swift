@@ -13,18 +13,18 @@ final class StreamingViewModel {
         case loaded([Movie])
         case error(String)
     }
-
+    
     private(set) var providers: [Provider] = []
     private(set) var selectedProviderID: Int?
     private(set) var state: State = .loading
-
+    
     private let apiClient: APIClient
-    private let region = Locale.current.region?.identifier ?? "IL"
-
+    private let region = Locale.current.region?.identifier ?? API.region
+    
     init(apiClient: APIClient = .shared) {
         self.apiClient = apiClient
     }
-
+    
     @MainActor
     func loadProviders() async {
         do {
@@ -33,7 +33,7 @@ final class StreamingViewModel {
                 .sorted { ($0.displayPriority ?? .max) < ($1.displayPriority ?? .max) }
                 .prefix(12)
                 .map { $0 }
-
+            
             if let first = providers.first {
                 await select(first.providerId)
             }
@@ -41,7 +41,7 @@ final class StreamingViewModel {
             state = .error(error.localizedDescription)
         }
     }
-
+    
     @MainActor
     func select(_ providerID: Int) async {
         selectedProviderID = providerID

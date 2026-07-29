@@ -18,7 +18,7 @@ enum Endpoint {
     case discoverByProvider(providerIDs: [Int], region: String)
     case watchProviderList(region: String)
     
-    private static let baseURL = "https://api.themoviedb.org/3"
+    private static let baseURL = API.baseURL
     
     private var path: String {
         switch self {
@@ -54,7 +54,7 @@ enum Endpoint {
                 URLQueryItem(name: "with_watch_providers",
                              value: providerIDs.map(String.init).joined(separator: "|")),
                 URLQueryItem(name: "watch_region", value: region),
-                URLQueryItem(name: "with_watch_monetization_types", value: "flatrate")
+                URLQueryItem(name: "with_watch_monetization_types", value: API.monetizationFlatrate)
             ]
         case .watchProviderList(let region):
             return [URLQueryItem(name: "watch_region", value: region)]

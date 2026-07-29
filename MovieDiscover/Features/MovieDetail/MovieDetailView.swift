@@ -51,19 +51,23 @@ struct MovieDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
         .sheet(isPresented: $showTrailer) {
-            if let key = viewModel.trailerKey,
-               let url = URL(string: "https://www.youtube.com/watch?v=\(key)") {
+            if let key = viewModel.trailerKey, let url = ExternalURL.youTube(key: key) {
                 SafariView(url: url)
             }
         }
     }
     
+    private var backdropURL: URL? {
+        if case .loaded(let details) = viewModel.state {
+            return details.backdropURL ?? movie.backdropURL ?? movie.posterURL
+        }
+        return movie.backdropURL
+    }
+
     private var backdrop: some View {
-        AsyncImage(url: movie.backdropURL ?? movie.posterURL) { phase in
+        AsyncImage(url: backdropURL) { phase in
             if case .success(let image) = phase {
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                image.resizable().aspectRatio(contentMode: .fit)
             } else {
                 Rectangle().fill(.gray.opacity(0.2))
                     .aspectRatio(16/9, contentMode: .fit)
@@ -120,7 +124,7 @@ struct MovieDetailView: View {
     private var trailerButton: some View {
         if viewModel.trailerKey != nil {
             Button { showTrailer = true } label: {
-                Label("Trailer", systemImage: "play.circle.fill")
+                Label(L10n.Detail.trailer, systemImage: "play.circle.fill")
             }
             .buttonStyle(.borderedProminent)
         }
@@ -142,7 +146,7 @@ struct MovieDetailView: View {
     private var castSection: some View {
         if !viewModel.cast.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Cast").font(.headline)
+                Text(L10n.Detail.cast).font(.headline)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(viewModel.cast) { member in
@@ -173,7 +177,7 @@ struct MovieDetailView: View {
     private var recommendedSection: some View {
         if !viewModel.recommendations.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Recommended").font(.headline)
+                Text(L10n.Detail.recommended).font(.headline)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(viewModel.recommendations) { rec in
@@ -201,7 +205,7 @@ struct MovieDetailView: View {
     private var providersSection: some View {
         if case .loaded = viewModel.state {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Where to Watch").font(.headline)
+                Text(L10n.Detail.whereToWatch).font(.headline)
                 if let flatrate = viewModel.providers?.flatrate, !flatrate.isEmpty {
                     HStack(spacing: 10) {
                         ForEach(flatrate) { provider in
@@ -217,7 +221,7 @@ struct MovieDetailView: View {
                         }
                     }
                 } else {
-                    Text("Not available on streaming in your region")
+                    Text(L10n.Error.streamingNotAvailableInRegion)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

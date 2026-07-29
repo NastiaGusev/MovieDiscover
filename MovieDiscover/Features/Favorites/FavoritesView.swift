@@ -11,15 +11,15 @@ import SwiftData
 struct FavoritesView: View {
     @Query(sort: \FavoriteMovie.dateAdded, order: .reverse) private var favorites: [FavoriteMovie]
     @Environment(\.modelContext) private var modelContext
-
+    
     var body: some View {
         NavigationStack {
             Group {
                 if favorites.isEmpty {
                     ContentUnavailableView(
-                        "No Favorites Yet",
+                        L10n.Favorites.noFavorites,
                         systemImage: "heart",
-                        description: Text("Movies you favorite will show up here.")
+                        description: Text(L10n.Favorites.favoritesDescription)
                     )
                 } else {
                     List {
@@ -39,7 +39,7 @@ struct FavoritesView: View {
                                     }
                                     .frame(width: 50, height: 75)
                                     .clipShape(RoundedRectangle(cornerRadius: 6))
-
+                                    
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(favorite.title)
                                             .font(.headline)
@@ -55,10 +55,10 @@ struct FavoritesView: View {
                     }
                 }
             }
-            .navigationTitle("Favorites")
+            .navigationTitle(L10n.Favorites.favorites)
         }
     }
-
+    
     private func deleteFavorites(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(favorites[index])
@@ -71,16 +71,17 @@ struct FavoritesView: View {
         for: FavoriteMovie.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-
+    
     let sample = FavoriteMovie(
         id: 27205,
         title: "Inception",
         posterPath: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
+        backdropPath: "/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
         overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a target's mind.",
         voteAverage: 8.4
     )
     container.mainContext.insert(sample)
-
+    
     return FavoritesView()
         .modelContainer(container)
 }
