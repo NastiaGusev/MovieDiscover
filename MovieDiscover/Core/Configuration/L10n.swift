@@ -37,20 +37,9 @@ enum L10n {
         static let playTrailer = LocalizedStringResource("Play Trailer")
     }
     
-    enum Browse {
-        static let browse = LocalizedStringResource("Browse")
-        static let trending = LocalizedStringResource("Trending")
-        static let loadingTrendingMovies = LocalizedStringResource("Loading trending movies…")
-    }
-    
     enum Search {
         static let search = LocalizedStringResource("Search")
         static let searchMovies = LocalizedStringResource("Search movies")
-        
-    }
-    
-    enum Streaming {
-        static let streaming = LocalizedStringResource("Streaming")
     }
     
     enum Favorites {

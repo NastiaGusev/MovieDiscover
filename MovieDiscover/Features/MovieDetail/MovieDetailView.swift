@@ -65,13 +65,11 @@ struct MovieDetailView: View {
     }
     
     private var backdrop: some View {
-        AsyncImage(url: backdropURL) { phase in
-            if case .success(let image) = phase {
-                image.resizable().aspectRatio(contentMode: .fit)
-            } else {
-                Rectangle().fill(Color.placeholder)
-                    .aspectRatio(AspectRatio.backDrop, contentMode: .fit)
-            }
+        CachedAsyncImage(url: backdropURL) { image in
+            image.resizable().aspectRatio(contentMode: .fit)
+        } placeholder: {
+            Rectangle().fill(Color.placeholder)
+                .aspectRatio(AspectRatio.backDrop, contentMode: .fit)
         }
         .frame(maxWidth: .infinity)
     }
@@ -151,12 +149,10 @@ struct MovieDetailView: View {
                     HStack(spacing: Spacing.md) {
                         ForEach(viewModel.cast) { member in
                             VStack(spacing: Spacing.xs) {
-                                AsyncImage(url: member.profileURL) { phase in
-                                    if case .success(let img) = phase {
-                                        img.resizable().aspectRatio(contentMode: .fill)
-                                    } else {
-                                        Circle().fill(Color.placeholder)
-                                    }
+                                CachedAsyncImage(url: member.profileURL) { image in
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    Circle().fill(Color.placeholder)
                                 }
                                 .frame(width: 70, height: 70)
                                 .clipShape(Circle())
