@@ -48,7 +48,7 @@ final class StreamingViewModel {
         state = .loading
         do {
             let response: MovieListResponse = try await apiClient.request(
-                .discoverByProvider(providerIDs: [providerID], region: region)
+                .discoverByProvider(providerIDs: [providerID], region: region, page: 1)
             )
             state = .loaded(response.results)
         } catch {

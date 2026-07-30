@@ -43,7 +43,7 @@ final class SearchViewModel {
         errorMessage = nil
         
         do {
-            let response: MovieListResponse = try await apiClient.request(.searchMovies(query: query))
+            let response: MovieListResponse = try await apiClient.request(.searchMovies(query: query, page: 1))
             guard !Task.isCancelled else { return }
             results = response.results
         } catch {

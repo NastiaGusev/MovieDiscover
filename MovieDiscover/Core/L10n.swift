@@ -38,6 +38,17 @@ enum L10n {
         static let favoritesDescription = LocalizedStringResource("Movies you favorite will show up here.")
     }
     
+    enum SmartSearch {
+        static let title = LocalizedStringResource("Discover")
+        static let placeholder = LocalizedStringResource("Describe what you're in the mood for…")
+        static let idleTitle = LocalizedStringResource("Search by vibe")
+        static let idleDescription = LocalizedStringResource("Try \"a slow-burn sci-fi thriller from the 90s\"")
+        static let thinking = LocalizedStringResource("Thinking…")
+        static let errorTitle = LocalizedStringResource("Something went wrong")
+        static let unavailableTitle = LocalizedStringResource("Not available on this device")
+        static let unavailableDescription = LocalizedStringResource("AI search needs a device with Apple Intelligence. Use Browse or Search instead.")
+    }
+    
     enum Error {
         static let retry = LocalizedStringResource("Retry")
         static let somethingWentWrong = LocalizedStringResource("Something Went Wrong")

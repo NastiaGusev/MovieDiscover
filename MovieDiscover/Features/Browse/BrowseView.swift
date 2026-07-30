@@ -65,10 +65,11 @@ struct BrowseView: View {
             ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
         case .error(let message):
             Text(message).foregroundStyle(.secondary)
-        case .loaded(let movies):
+        case .loaded:
             MoviePosterGrid(
-                movies: movies,
-                columnCount: viewModel.selectedGenreID == nil ? GridColumns.trending : GridColumns.genre
+                movies: viewModel.movies,
+                columnCount: viewModel.selectedGenreID == nil ? GridColumns.trending : GridColumns.genre,
+                onReachEnd: { Task { await viewModel.loadMore() } }
             )
         }
     }

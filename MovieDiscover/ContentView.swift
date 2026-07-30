@@ -26,6 +26,11 @@ struct ContentView: View {
                     Label(L10n.Search.search, systemImage: "magnifyingglass")
                 }
             
+            SmartSearchEntry.make()
+                .tabItem {
+                    Label(L10n.SmartSearch.title, systemImage: "sparkles")
+                }
+            
             FavoritesView()
                 .tabItem {
                     Label(L10n.Favorites.favorites, systemImage: "heart")

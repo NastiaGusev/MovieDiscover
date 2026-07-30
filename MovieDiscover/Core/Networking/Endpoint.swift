@@ -8,17 +8,19 @@
 import Foundation
 
 enum Endpoint {
-    case trendingMovies
-    case searchMovies(query: String)
+    case trendingMovies(page: Int)
+    case searchMovies(query: String, page: Int)
+    case discoverByGenre(genreID: Int, page: Int)
+    case discoverByProvider(providerIDs: [Int], region: String, page: Int)
+    case discoverByIntent(keywordIDs: [Int], genreIDs: [Int], page: Int)
     case movieDetail(id: Int)
     case credits(id: Int)
     case videos(id: Int)
     case recommendations(id: Int)
     case watchProviders(id: Int)
-    case discoverByProvider(providerIDs: [Int], region: String)
     case watchProviderList(region: String)
     case genreList
-    case discoverByGenre(genreID: Int)
+    case searchKeyword(query: String)
     
     private static let baseURL = API.baseURL
     
@@ -46,26 +48,57 @@ enum Endpoint {
             return "/genre/movie/list"
         case .discoverByGenre:
             return "/discover/movie"
+        case .searchKeyword:
+            return "/search/keyword"
+        case .discoverByIntent:
+            return "/discover/movie"
         }
     }
     
     private var queryItems: [URLQueryItem] {
         switch self {
-        case .trendingMovies, .movieDetail, .credits, .videos, .recommendations, .watchProviders, .genreList:
+        case .movieDetail, .credits, .videos, .recommendations, .watchProviders, .genreList:
             return []
-        case .searchMovies(let query):
-            return [URLQueryItem(name: "query", value: query)]
-        case .discoverByProvider(let providerIDs, let region):
+        case .trendingMovies(let page):
+            return [URLQueryItem(name: "page", value: String(page))]
+            
+        case .searchMovies(let query, let page):
+            return [
+                URLQueryItem(name: "query", value: query),
+                URLQueryItem(name: "page", value: String(page))
+            ]
+            
+        case .discoverByGenre(let genreID, let page):
+            return [
+                URLQueryItem(name: "with_genres", value: String(genreID)),
+                URLQueryItem(name: "page", value: String(page))
+            ]
+            
+        case .discoverByIntent(let keywordIDs, let genreIDs, let page):
+            var items: [URLQueryItem] = []
+            if !keywordIDs.isEmpty {
+                items.append(URLQueryItem(name: "with_keywords",
+                                          value: keywordIDs.map(String.init).joined(separator: "|")))
+            }
+            if !genreIDs.isEmpty {
+                items.append(URLQueryItem(name: "with_genres",
+                                          value: genreIDs.map(String.init).joined(separator: "|")))
+            }
+            items.append(URLQueryItem(name: "sort_by", value: "popularity.desc"))
+            items.append(URLQueryItem(name: "page", value: String(page)))
+            return items
+        case .discoverByProvider(let providerIDs, let region, let page):
             return [
                 URLQueryItem(name: "with_watch_providers",
                              value: providerIDs.map(String.init).joined(separator: "|")),
                 URLQueryItem(name: "watch_region", value: region),
-                URLQueryItem(name: "with_watch_monetization_types", value: API.monetizationFlatrate)
+                URLQueryItem(name: "with_watch_monetization_types", value: API.monetizationFlatrate),
+                URLQueryItem(name: "page", value: String(page))
             ]
         case .watchProviderList(let region):
             return [URLQueryItem(name: "watch_region", value: region)]
-        case .discoverByGenre(let genreID):
-            return [URLQueryItem(name: "with_genres", value: String(genreID))]
+        case .searchKeyword(let query):
+            return [URLQueryItem(name: "query", value: query)]
         }
     }
     
