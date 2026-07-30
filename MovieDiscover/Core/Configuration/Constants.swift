@@ -15,14 +15,14 @@ nonisolated enum API {
 
 nonisolated enum ImageConfig {
     static let baseURL = "https://image.tmdb.org/t/p/"
-
+    
     enum Size {
         static let providerLogo = "w92"
         static let castProfile  = "w185"
         static let backdrop     = "w780"
         static let poster       = "w500"
-}
-
+    }
+    
     static func url(path: String, size: String) -> URL? {
         URL(string: baseURL + size + path)
     }

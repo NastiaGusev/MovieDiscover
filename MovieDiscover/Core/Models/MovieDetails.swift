@@ -18,8 +18,8 @@ nonisolated struct MovieDetails: Codable {
     let backdropPath: String?
     
     var backdropURL: URL? {
-            backdropPath.map { ImageConfig.url(path: $0, size: ImageConfig.Size.backdrop) } ?? nil
-        }
+        backdropPath.map { ImageConfig.url(path: $0, size: ImageConfig.Size.backdrop) } ?? nil
+    }
     
     var releaseYear: String? {
         guard let releaseDate, releaseDate.count >= 4 else { return nil }
@@ -34,7 +34,7 @@ nonisolated struct MovieDetails: Codable {
     }
 }
 
-nonisolated struct Genre: Codable, Identifiable {
+nonisolated struct Genre: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
 }

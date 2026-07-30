@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class FavoriteMovie {
-
+    
     @Attribute(.unique) var id: Int
     var title: String
     var posterPath: String?
@@ -18,7 +18,7 @@ final class FavoriteMovie {
     var overview: String
     var voteAverage: Double
     var dateAdded: Date
- 
+    
     init(id: Int, title: String, posterPath: String?, backdropPath: String?, overview: String, voteAverage: Double, dateAdded: Date = .now) {
         self.id = id
         self.title = title
@@ -28,12 +28,12 @@ final class FavoriteMovie {
         self.voteAverage = voteAverage
         self.dateAdded = dateAdded
     }
-
+    
     var posterURL: URL? {
         posterPath.map { ImageConfig.url(path: $0, size: ImageConfig.Size.poster) } ?? nil
     }
 }
- 
+
 extension FavoriteMovie {
     convenience init(from movie: Movie) {
         self.init(

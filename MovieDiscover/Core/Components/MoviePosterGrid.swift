@@ -11,11 +11,11 @@ struct MoviePosterGrid: View {
     let movies: [Movie]
     let columnCount: Int
     var onReachEnd: (() async -> Void)? = nil
-
+    
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: Spacing.sm), count: columnCount)
     }
-
+    
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: Spacing.sm) {
@@ -30,6 +30,7 @@ struct MoviePosterGrid: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
             .padding(.horizontal)
         }
     }

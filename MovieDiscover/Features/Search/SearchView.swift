@@ -9,26 +9,21 @@ import SwiftUI
 
 struct SearchView: View {
     @State private var viewModel = SearchViewModel()
-
+    
     var body: some View {
-        NavigationStack {
-            content
-                .navigationTitle(L10n.Search.search)
-                .searchable(text: $viewModel.query, prompt: L10n.Search.searchMovies)
-                .onSubmit(of: .search) {
+        content
+            .navigationTitle(String(localized: L10n.Search.search))
+            .searchable(text: $viewModel.query, prompt: L10n.Search.searchMovies)
+            .onSubmit(of: .search) {
+                Task { await viewModel.search() }
+            }
+            .onChange(of: viewModel.query) { _, newValue in
+                if newValue.trimmingCharacters(in: .whitespaces).isEmpty {
                     Task { await viewModel.search() }
                 }
-                .onChange(of: viewModel.query) { _, newValue in
-                    if newValue.trimmingCharacters(in: .whitespaces).isEmpty {
-                        Task { await viewModel.search() }   // resets to .idle on clear
-                    }
-                }
-                .navigationDestination(for: Movie.self) { movie in
-                    MovieDetailView(movie: movie)
-                }
-        }
+            }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
@@ -57,7 +52,7 @@ struct SearchView: View {
                         }
                         .frame(width: 46, height: 69)
                         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
-
+                        
                         VStack(alignment: .leading) {
                             Text(movie.title)
                                 .font(.headline)
@@ -80,5 +75,5 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView()
+    NavigationStack { SearchView() }
 }

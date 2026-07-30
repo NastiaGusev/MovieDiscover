@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MoviePosterCell: View {
     let movie: Movie
-
+    
     var body: some View {
         AsyncImage(url: movie.posterURL) { phase in
             if case .success(let image) = phase {

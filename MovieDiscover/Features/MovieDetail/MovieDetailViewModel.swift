@@ -15,7 +15,7 @@ final class MovieDetailViewModel {
         case error(String)
     }
     
-private(set) var state: State = .loading
+    private(set) var state: State = .loading
     private(set) var cast: [CastMember] = []
     private(set) var recommendations: [Movie] = []
     private(set) var trailerKey: String?

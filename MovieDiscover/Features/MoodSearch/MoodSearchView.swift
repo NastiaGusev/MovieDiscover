@@ -1,5 +1,5 @@
 //
-//  SmartSearchView.swift
+//  MoodSearchView.swift
 //  MovieDiscover
 //
 //  Created by Nastia Gusev on 29/07/2026.
@@ -7,21 +7,27 @@
 
 import SwiftUI
 
-struct SmartSearchView: View {
-    @State private var viewModel: SmartSearchViewModel
+struct MoodSearchView: View {
+    @State private var viewModel: MoodSearchViewModel
+    private let initialQuery: String?
     
-    init(viewModel: SmartSearchViewModel) {
+    init(viewModel: MoodSearchViewModel, initialQuery: String? = nil) {
         _viewModel = State(initialValue: viewModel)
+        self.initialQuery = initialQuery
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: Spacing.md) {
-                promptField
-                content
+        VStack(spacing: Spacing.md) {
+            promptField
+            content
+        }
+        .padding(.horizontal)
+        .navigationTitle(String(localized: L10n.MoodSearch.title))
+        .task {
+            if let initialQuery, viewModel.query.isEmpty {
+                viewModel.query = initialQuery
+                await viewModel.search()
             }
-            .padding(.horizontal)
-            .navigationTitle(L10n.SmartSearch.title)
         }
     }
     
@@ -30,7 +36,7 @@ struct SmartSearchView: View {
             Image(systemName: "sparkles")
                 .foregroundStyle(.secondary)
             
-            TextField(L10n.SmartSearch.placeholder, text: $viewModel.query, axis: .vertical)
+            TextField(L10n.MoodSearch.placeholder, text: $viewModel.query, axis: .vertical)
                 .lineLimit(1...3)
                 .frame(minHeight: 32)
                 .onSubmit { Task { await viewModel.search() } }
@@ -56,14 +62,14 @@ struct SmartSearchView: View {
         switch viewModel.state {
         case .idle:
             ContentUnavailableView(
-                L10n.SmartSearch.idleTitle,
+                L10n.MoodSearch.idleTitle,
                 systemImage: "sparkles",
-                description: Text(L10n.SmartSearch.idleDescription)
+                description: Text(L10n.MoodSearch.idleDescription)
             )
         case .thinking:
             VStack(spacing: Spacing.sm) {
                 ProgressView()
-                Text(L10n.SmartSearch.thinking).font(.caption).foregroundStyle(.secondary)
+                Text(L10n.MoodSearch.thinking).font(.caption).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .results:
@@ -76,7 +82,7 @@ struct SmartSearchView: View {
             ContentUnavailableView.search
         case .error(let message):
             ContentUnavailableView(
-                L10n.SmartSearch.errorTitle,
+                L10n.MoodSearch.errorTitle,
                 systemImage: "exclamationmark.triangle",
                 description: Text(message)
             )
@@ -86,6 +92,6 @@ struct SmartSearchView: View {
 
 #if DEBUG
 #Preview {
-    SmartSearchView(viewModel: SmartSearchViewModel(parser: MockIntentParser()))
+    MoodSearchView(viewModel: MoodSearchViewModel(parser: MockIntentParser()))
 }
 #endif

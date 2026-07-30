@@ -10,7 +10,7 @@ import Foundation
 final class APIClient {
     static let shared = APIClient()
     private init() {}
-
+    
     private var apiKey: String {
         guard let key = Bundle.main.object(forInfoDictionaryKey: "TMDB_API_KEY") as? String,
               !key.isEmpty else {
@@ -18,27 +18,27 @@ final class APIClient {
         }
         return key
     }
-
+    
     func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
         guard let url = endpoint.url() else {
             throw APIError.invalidURL
         }
-
+        
         var request = URLRequest(url: url)
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-
+        
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-
+            
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw APIError.unknown(URLError(.badServerResponse))
             }
-
+            
             guard (200...299).contains(httpResponse.statusCode) else {
                 throw APIError.requestFailed(statusCode: httpResponse.statusCode)
             }
-
+            
             do {
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase

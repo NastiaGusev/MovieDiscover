@@ -1,5 +1,5 @@
 //
-//  SmartSearchViewModel.swift
+//  MoodSearchViewModel.swift
 //  MovieDiscover
 //
 //  Created by Nastia Gusev on 29/07/2026.
@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-final class SmartSearchViewModel {
+final class MoodSearchViewModel {
     
     enum State {
         case idle, thinking, results, empty, error(String)

@@ -1,42 +1,35 @@
 //
-//  StreamingView.swift
+//  StreamingBrowserView.swift
 //  MovieDiscover
 //
-//  Created by Nastia Gusev on 28/07/2026.
+//  Created by Nastia Gusev on 30/07/2026.
 //
+
 import SwiftUI
 
-struct StreamingView: View {
-    @State private var viewModel = StreamingViewModel()
-
+struct StreamingBrowserView: View {
+    let viewModel: StreamingViewModel
+    
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                providerRow
-                    .padding(.vertical, Spacing.sm)
-                content
-            }
-            .navigationTitle(L10n.Streaming.streaming)
-            .task { await viewModel.loadProviders() }
-            .navigationDestination(for: Movie.self) { movie in
-                MovieDetailView(movie: movie)
-            }
+        VStack(spacing: 0) {
+            picker
+            grid
         }
+        .navigationTitle(String(localized: L10n.Home.whereToStream))
+        .navigationBarTitleDisplayMode(.inline)
     }
-
-    private var providerRow: some View {
+    
+    private var picker: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Spacing.md) {
                 ForEach(viewModel.providers) { provider in
                     Button {
                         Task { await viewModel.select(provider.providerId) }
                     } label: {
-                        AsyncImage(url: provider.logoURL) { phase in
-                            if case .success(let img) = phase {
-                                img.resizable().aspectRatio(contentMode: .fit)
-                            } else {
-                                RoundedRectangle(cornerRadius: CornerRadius.md).fill(Color.placeholder)
-                            }
+                        CachedAsyncImage(url: provider.logoURL) { image in
+                            image.resizable().aspectRatio(contentMode: .fit)
+                        } placeholder: {
+                            RoundedRectangle(cornerRadius: CornerRadius.md).fill(Color.placeholder)
                         }
                         .frame(width: 50, height: 50)
                         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
@@ -48,18 +41,18 @@ struct StreamingView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal)
+            .padding()
         }
     }
-
+    
     @ViewBuilder
-    private var content: some View {
+    private var grid: some View {
         switch viewModel.state {
         case .loading:
             ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
         case .error(let message):
             ContentUnavailableView(
-                L10n.Error.somethingWentWrong,
+                String(localized: L10n.Error.somethingWentWrong),
                 systemImage: "exclamationmark.triangle",
                 description: Text(message)
             )
@@ -67,12 +60,8 @@ struct StreamingView: View {
             MoviePosterGrid(
                 movies: viewModel.movies,
                 columnCount: GridColumns.streaming,
-                onReachEnd: { Task { await viewModel.loadMore() } }
+                onReachEnd: { await viewModel.loadMore() }
             )
         }
     }
-}
-
-#Preview {
-    StreamingView()
 }
