@@ -9,34 +9,43 @@ import SwiftUI
 
 struct SearchView: View {
     @State private var viewModel = SearchViewModel()
-    
+
     var body: some View {
         NavigationStack {
             content
                 .navigationTitle(L10n.Search.search)
                 .searchable(text: $viewModel.query, prompt: L10n.Search.searchMovies)
+                .onSubmit(of: .search) {
+                    Task { await viewModel.search() }
+                }
+                .onChange(of: viewModel.query) { _, newValue in
+                    if newValue.trimmingCharacters(in: .whitespaces).isEmpty {
+                        Task { await viewModel.search() }   // resets to .idle on clear
+                    }
+                }
                 .navigationDestination(for: Movie.self) { movie in
                     MovieDetailView(movie: movie)
                 }
         }
     }
-    
+
     @ViewBuilder
     private var content: some View {
-        if viewModel.query.trimmingCharacters(in: .whitespaces).isEmpty {
+        switch viewModel.state {
+        case .idle:
             ContentUnavailableView.search
-        } else if viewModel.isLoading && viewModel.results.isEmpty {
-            ProgressView()
-        } else if let errorMessage = viewModel.errorMessage {
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .error(let message):
             ContentUnavailableView(
                 L10n.Error.somethingWentWrong,
                 systemImage: "exclamationmark.triangle",
-                description: Text(errorMessage)
+                description: Text(message)
             )
-        } else if viewModel.results.isEmpty {
+        case .empty:
             ContentUnavailableView.search(text: viewModel.query)
-        } else {
-            List(viewModel.results) { movie in
+        case .loaded:
+            List(viewModel.movies) { movie in
                 NavigationLink(value: movie) {
                     HStack(spacing: Spacing.md) {
                         AsyncImage(url: movie.posterURL) { phase in
@@ -48,7 +57,7 @@ struct SearchView: View {
                         }
                         .frame(width: 46, height: 69)
                         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
-                        
+
                         VStack(alignment: .leading) {
                             Text(movie.title)
                                 .font(.headline)
@@ -57,6 +66,11 @@ struct SearchView: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                         }
+                    }
+                }
+                .onAppear {
+                    if movie.id == viewModel.movies.last?.id {
+                        Task { await viewModel.loadMore() }
                     }
                 }
             }

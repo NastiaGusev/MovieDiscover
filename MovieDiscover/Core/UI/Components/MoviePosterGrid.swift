@@ -10,7 +10,7 @@ import SwiftUI
 struct MoviePosterGrid: View {
     let movies: [Movie]
     let columnCount: Int
-    var onReachEnd: (() -> Void)? = nil
+    var onReachEnd: (() async -> Void)? = nil
 
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: Spacing.sm), count: columnCount)
@@ -24,7 +24,9 @@ struct MoviePosterGrid: View {
                         MoviePosterCell(movie: movie)
                     }
                     .onAppear {
-                        if movie.id == movies.last?.id { onReachEnd?() }
+                        if movie.id == movies.last?.id {
+                            Task { await onReachEnd?() }
+                        }
                     }
                 }
             }

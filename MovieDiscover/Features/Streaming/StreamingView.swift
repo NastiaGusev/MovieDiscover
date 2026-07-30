@@ -5,30 +5,25 @@
 //  Created by Nastia Gusev on 28/07/2026.
 //
 import SwiftUI
-import SwiftData
 
 struct StreamingView: View {
     @State private var viewModel = StreamingViewModel()
-    
+
     var body: some View {
         NavigationStack {
-            ScrollView {
+            VStack(spacing: 0) {
                 providerRow
-                
-                switch viewModel.state {
-                case .loading:
-                    ProgressView().padding()
-                case .error(let message):
-                    Text(message).foregroundStyle(.secondary).padding()
-                case .loaded(let movies):
-                    MoviePosterGrid(movies: movies, columnCount: GridColumns.streaming)
-                }
+                    .padding(.vertical, Spacing.sm)
+                content
             }
             .navigationTitle(L10n.Streaming.streaming)
             .task { await viewModel.loadProviders() }
+            .navigationDestination(for: Movie.self) { movie in
+                MovieDetailView(movie: movie)
+            }
         }
     }
-    
+
     private var providerRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Spacing.md) {
@@ -47,19 +42,37 @@ struct StreamingView: View {
                         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
                         .overlay(
                             RoundedRectangle(cornerRadius: CornerRadius.md)
-                                .stroke(.blue, lineWidth: viewModel.selectedProviderID == provider.providerId ? 3 : 0)
+                                .stroke(.tint, lineWidth: viewModel.selectedProviderID == provider.providerId ? 3 : 0)
                         )
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal)
         }
     }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.state {
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .error(let message):
+            ContentUnavailableView(
+                L10n.Error.somethingWentWrong,
+                systemImage: "exclamationmark.triangle",
+                description: Text(message)
+            )
+        case .loaded:
+            MoviePosterGrid(
+                movies: viewModel.movies,
+                columnCount: GridColumns.streaming,
+                onReachEnd: { Task { await viewModel.loadMore() } }
+            )
+        }
+    }
 }
 
 #Preview {
-    NavigationStack {
-        StreamingView()
-    }
-    .modelContainer(for: FavoriteMovie.self, inMemory: true)
+    StreamingView()
 }

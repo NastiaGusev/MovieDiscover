@@ -66,8 +66,12 @@ struct SmartSearchView: View {
                 Text(L10n.SmartSearch.thinking).font(.caption).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        case .results(let movies):
-            MoviePosterGrid(movies: movies, columnCount: GridColumns.genre)
+        case .results:
+            MoviePosterGrid(
+                movies: viewModel.movies,
+                columnCount: GridColumns.genre,
+                onReachEnd: { await viewModel.loadMore() }
+            )
         case .empty:
             ContentUnavailableView.search
         case .error(let message):

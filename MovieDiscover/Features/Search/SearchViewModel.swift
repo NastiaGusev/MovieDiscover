@@ -9,48 +9,40 @@ import Foundation
 
 @Observable
 final class SearchViewModel {
-    private(set) var results: [Movie] = []
-    private(set) var isLoading = false
-    private(set) var errorMessage: String?
-    
-    var query: String = "" {
-        didSet {
-            searchTask?.cancel()
-            guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
-                results = []
-                return
-            }
-            searchTask = Task {
-                try? await Task.sleep(for: .milliseconds(debounceMilliseconds))
-                guard !Task.isCancelled else { return }
-                await performSearch()
-            }
-        }
-    }
-    
-    private var searchTask: Task<Void, Never>?
-    private let apiClient: APIClientProtocol
-    
-    private let debounceMilliseconds: Int
-    
-    init(apiClient: APIClientProtocol = APIClient.shared, debounceMilliseconds: Int = 400) {
+    enum State { case idle, loading, loaded, empty, error(String) }
+
+    var query: String = ""
+    private(set) var state: State = .idle
+
+    private let apiClient: APIClient
+    private var pager: MoviePager?
+
+    var movies: [Movie] { pager?.movies ?? [] }
+
+    init(apiClient: APIClient = .shared) {
         self.apiClient = apiClient
-        self.debounceMilliseconds = debounceMilliseconds
     }
-    
-    private func performSearch() async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let response: MovieListResponse = try await apiClient.request(.searchMovies(query: query, page: 1))
-            guard !Task.isCancelled else { return }
-            results = response.results
-        } catch {
-            guard !Task.isCancelled else { return }
-            errorMessage = (error as? APIError)?.errorDescription ?? error.localizedDescription
+
+    @MainActor
+    func search() async {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { state = .idle; return }
+
+        let apiClient = self.apiClient
+        pager = MoviePager { page in
+            try await apiClient.request(.searchMovies(query: trimmed, page: page))
         }
-        
-        isLoading = false
+        state = .loading
+        do {
+            try await pager?.loadNext()
+            state = movies.isEmpty ? .empty : .loaded
+        } catch {
+            state = .error(error.localizedDescription)
+        }
+    }
+
+    @MainActor
+    func loadMore() async {
+        try? await pager?.loadNext()
     }
 }
