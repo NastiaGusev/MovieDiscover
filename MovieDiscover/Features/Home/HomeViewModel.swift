@@ -30,7 +30,7 @@ final class HomeViewModel {
     }
 
     @MainActor
-    func onAppear(favoriteGenreIDs: [Int]) async {
+    func onAppear(favorites: [FavoriteMovie]) async {
         guard !didLoad else { return }
         didLoad = true
 
@@ -41,15 +41,37 @@ final class HomeViewModel {
             .forYou(blurb: nil, movies: []),
             .row(HomeRow(id: "trending",
                          title: String(localized: L10n.Home.trending),
-                         source: .trending,
-                         cardSize: .hero)),
+                         source: .trending, cardSize: .hero)),
             .genreExplore(Array(genres.prefix(9))),
             .whereToStream
         ]
 
         await loadTrending()
         await loadGenreImages(Array(genres.prefix(9)))
-        await loadRecommended(favoriteGenreIDs: favoriteGenreIDs)
+        await loadRecommended(favorites: favorites)
+    }
+
+    @MainActor
+    private func loadRecommended(favorites: [FavoriteMovie]) async {
+        let genreIDs = favorites.flatMap { $0.genreIDs ?? [] }
+        let favoriteIDs = Set(favorites.map(\.id))
+
+        guard let topGenre = mostCommon(genreIDs) else {
+            sections.removeAll { $0.id == "forYou" }
+            return
+        }
+        do {
+            let response: MovieListResponse = try await apiClient.request(
+                .discoverByGenre(genreID: topGenre, page: 1))
+            let filtered = response.results.filter { !favoriteIDs.contains($0.id) }
+            if filtered.isEmpty {
+                sections.removeAll { $0.id == "forYou" }
+            } else {
+                updateForYou(movies: filtered)
+            }
+        } catch {
+            sections.removeAll { $0.id == "forYou" }
+        }
     }
 
     // MARK: - RowSource → Endpoint (reused by rows and See-all pager)
@@ -110,30 +132,6 @@ final class HomeViewModel {
             for await (id, url) in group {
                 if let url { genreImages[id] = url }
             }
-        }
-    }
-
-    @MainActor
-    private func loadRecommended(favoriteGenreIDs: [Int]) async {
-        guard !favoriteGenreIDs.isEmpty else {
-            sections.removeAll { $0.id == "forYou" }
-            return
-        }
-        let topGenre = mostCommon(favoriteGenreIDs)
-        guard let topGenre else {
-            sections.removeAll { $0.id == "forYou" }
-            return
-        }
-        do {
-            let response: MovieListResponse = try await apiClient.request(
-                .discoverByGenre(genreID: topGenre, page: 1))
-            if response.results.isEmpty {
-                sections.removeAll { $0.id == "forYou" }
-            } else {
-                updateForYou(movies: response.results)
-            }
-        } catch {
-            sections.removeAll { $0.id == "forYou" }
         }
     }
 

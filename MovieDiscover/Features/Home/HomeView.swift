@@ -35,9 +35,8 @@ struct HomeView: View {
                 }
             }
             .task {
-                await viewModel.onAppear(
-                    favoriteGenreIDs: favorites.flatMap { $0.genreIDs ?? [] }
-                )
+                await viewModel.onAppear(favorites: favorites)
+
             }
             .navigationDestination(for: Movie.self) { movie in
                 MovieDetailView(movie: movie)
