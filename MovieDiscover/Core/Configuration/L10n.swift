@@ -29,6 +29,22 @@ enum L10n {
         static let remove = LocalizedStringResource("Remove")
     }
     
+    enum Insights {
+        static let title = LocalizedStringResource("Your Taste")
+        static let empty = LocalizedStringResource("Favorite some films to see your taste take shape.")
+        static let saved = LocalizedStringResource("Saved")
+        static let avgRating = LocalizedStringResource("Avg rating")
+        static let topGenre = LocalizedStringResource("Top genre")
+        static let topGenres = LocalizedStringResource("Top genres")
+        static let byDecade = LocalizedStringResource("By decade")
+        static let byRating = LocalizedStringResource("By rating")
+    }
+    
+    enum Taste {
+        static let heading = LocalizedStringResource("BASED ON YOUR FAVORITES")
+        static let thinking = LocalizedStringResource("Reading your taste…")
+    }
+    
     enum Detail {
         static let cast = LocalizedStringResource("Cast")
         static let recommended = LocalizedStringResource("Recommended")

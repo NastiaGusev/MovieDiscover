@@ -1,16 +1,8 @@
-//
-//  FavoriteMovie.swift
-//  MovieDiscover
-//
-//  Created by Nastia Gusev on 30/06/2026.
-//
-
 import Foundation
 import SwiftData
 
 @Model
 final class FavoriteMovie {
-    
     @Attribute(.unique) var id: Int
     var title: String
     var posterPath: String?
@@ -18,17 +10,24 @@ final class FavoriteMovie {
     var overview: String
     var voteAverage: Double
     var dateAdded: Date
-    
-    init(id: Int, title: String, posterPath: String?, backdropPath: String?, overview: String, voteAverage: Double, dateAdded: Date = .now) {
+    var releaseDate: String?
+    var genreIDs: [Int]?
+
+    init(id: Int, title: String, posterPath: String?, backdropPath: String?,
+         overview: String, voteAverage: Double,
+         releaseDate: String? = nil, genreIDs: [Int]? = nil,
+         dateAdded: Date = .now) {
         self.id = id
         self.title = title
         self.posterPath = posterPath
         self.backdropPath = backdropPath
         self.overview = overview
         self.voteAverage = voteAverage
+        self.releaseDate = releaseDate
+        self.genreIDs = genreIDs
         self.dateAdded = dateAdded
     }
-    
+
     var posterURL: URL? {
         posterPath.map { ImageConfig.url(path: $0, size: ImageConfig.Size.poster) } ?? nil
     }
@@ -42,7 +41,24 @@ extension FavoriteMovie {
             posterPath: movie.posterPath,
             backdropPath: movie.backdropPath,
             overview: movie.overview,
-            voteAverage: movie.voteAverage
+            voteAverage: movie.voteAverage,
+            releaseDate: movie.releaseDate,
+            genreIDs: movie.genreIDs
+        )
+    }
+}
+
+extension FavoriteMovie {
+    var asMovie: Movie {
+        Movie(
+            id: id,
+            title: title,
+            overview: overview,
+            posterPath: posterPath,
+            backdropPath: backdropPath,
+            releaseDate: releaseDate,
+            voteAverage: voteAverage,
+            genreIDs: genreIDs
         )
     }
 }

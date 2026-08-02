@@ -52,4 +52,11 @@ final class MovieDetailViewModel {
             state = .error(error.localizedDescription)
         }
     }
+    
+    var loadedGenreIDs: [Int]? {
+        if case .loaded(let details) = state {
+            return details.genres.map(\.id)
+        }
+        return nil
+    }
 }

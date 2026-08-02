@@ -20,4 +20,9 @@ extension LinearGradient {
         colors: [Color.brand.opacity(0.28), .clear],
         startPoint: .top, endPoint: .bottom
     )
+    static let blindSpot = LinearGradient(
+        colors: [Color(red: 0.55, green: 0.22, blue: 0.30),
+                 Color(red: 0.35, green: 0.15, blue: 0.28)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
 }

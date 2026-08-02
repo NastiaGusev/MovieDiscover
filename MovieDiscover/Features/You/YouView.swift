@@ -21,9 +21,7 @@ struct YouView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Spacing.lg) {
-                    // ── Insertion point: taste profile blurb (feature 3) ──
-                    // ── Insertion point: Insights dashboard (feature 2) ──
-                    
+                    TasteProfileEntry.make(favorites: favorites)
                     favoritesSection
                 }
                 .padding(.vertical, Spacing.md)

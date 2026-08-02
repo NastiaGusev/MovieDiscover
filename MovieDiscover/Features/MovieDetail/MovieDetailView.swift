@@ -222,7 +222,17 @@ struct MovieDetailView: View {
         if let existing = allFavorites.first(where: { $0.id == movie.id }) {
             modelContext.delete(existing)
         } else {
-            modelContext.insert(FavoriteMovie(from: movie))
+            let enriched = Movie(
+                id: movie.id,
+                title: movie.title,
+                overview: movie.overview,
+                posterPath: movie.posterPath,
+                backdropPath: movie.backdropPath,
+                releaseDate: movie.releaseDate,
+                voteAverage: movie.voteAverage,
+                genreIDs: viewModel.loadedGenreIDs ?? movie.genreIDs
+            )
+            modelContext.insert(FavoriteMovie(from: enriched))
         }
     }
 }

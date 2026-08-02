@@ -16,7 +16,8 @@ extension Movie {
         posterPath: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
         backdropPath: "/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
         releaseDate: "2010-07-16",
-        voteAverage: 8.4
+        voteAverage: 8.4,
+        genreIDs: []
     )
     
     static let previewList: [Movie] = [
@@ -27,7 +28,8 @@ extension Movie {
               posterPath: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
               backdropPath: "/xJHokMbljvjADYdit5fK5VQsXEG.jpg",
               releaseDate: "2014-11-05",
-              voteAverage: 8.4)
+              voteAverage: 8.4,
+              genreIDs: [])
     ]
 }
 #endif
