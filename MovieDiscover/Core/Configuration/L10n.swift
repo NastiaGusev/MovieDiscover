@@ -30,6 +30,12 @@ enum L10n {
         static let remove = LocalizedStringResource("Remove")
     }
     
+    enum Collections {
+        static let thinking = LocalizedStringResource("Organizing your favorites…")
+        static let banner = LocalizedStringResource("A better view of your movies, grouped by taste")
+        static let more = LocalizedStringResource("More favorites")
+    }
+    
     enum Insights {
         static let title = LocalizedStringResource("Your Taste")
         static let empty = LocalizedStringResource("Favorite some films to see your taste take shape.")

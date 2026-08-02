@@ -21,49 +21,24 @@ struct YouView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Spacing.lg) {
-                    TasteProfileEntry.make(favorites: favorites)
-                    favoritesSection
+                    TasteProfileEntry.make(favorites: favorites).id("tasteProfile")
+                    
+                    if favorites.isEmpty {
+                        ContentUnavailableView(
+                            String(localized: L10n.You.noFavoritesTitle),
+                            systemImage: "heart",
+                            description: Text(String(localized: L10n.You.noFavoritesDescription))
+                        )
+                        .padding(.top, Spacing.lg)
+                    } else {
+                        FavoriteCollectionsEntry.make(favorites: favorites)
+                    }
                 }
                 .padding(.vertical, Spacing.md)
             }
             .navigationTitle(String(localized: L10n.You.title))
             .navigationDestination(for: Movie.self) { movie in
                 MovieDetailView(movie: movie)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var favoritesSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text(String(localized: L10n.You.favorites))
-                .font(.title3.bold())
-                .padding(.horizontal)
-            
-            if favorites.isEmpty {
-                ContentUnavailableView(
-                    String(localized: L10n.You.noFavoritesTitle),
-                    systemImage: "heart",
-                    description: Text(String(localized: L10n.You.noFavoritesDescription))
-                )
-                .padding(.vertical, Spacing.lg)
-            } else {
-                LazyVGrid(columns: columns, spacing: Spacing.sm) {
-                    ForEach(favorites) { favorite in
-                        NavigationLink(value: favorite.asMovie) {
-                            MoviePosterCell(movie: favorite.asMovie)
-                        }
-                        .buttonStyle(.plain)
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                modelContext.delete(favorite)
-                            } label: {
-                                Label(String(localized: L10n.You.remove), systemImage: "heart.slash")
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
             }
         }
     }

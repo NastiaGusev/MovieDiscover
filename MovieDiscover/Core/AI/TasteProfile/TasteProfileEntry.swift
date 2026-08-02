@@ -12,8 +12,10 @@ enum TasteProfileEntry {
     @ViewBuilder
     static func make(favorites: [FavoriteMovie]) -> some View {
         if #available(iOS 26.0, *), case .available = SystemLanguageModel.default.availability {
-            TasteProfileView(favorites: favorites,
-                             viewModel: TasteProfileViewModel(profiler: FoundationModelTasteProfiler()))
+            TasteProfileView(
+                favorites: favorites,
+                viewModel: TasteProfileViewModel(profiler: FoundationModelTasteProfiler())
+            )
         } else {
             EmptyView()
         }
