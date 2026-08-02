@@ -13,7 +13,6 @@ enum HomeSection: Identifiable {
     case genreExplore([Genre])
     case whereToStream
     case forYou(blurb: String?, movies: [Movie])
-    case insightTeaser(topGenre: String?)
     
     var id: String {
         switch self {
@@ -22,7 +21,6 @@ enum HomeSection: Identifiable {
         case .genreExplore:   "genreExplore"
         case .whereToStream: "whereToStream"
         case .forYou: "forYou"
-        case .insightTeaser: "insightTeaser"
         }
     }
 }

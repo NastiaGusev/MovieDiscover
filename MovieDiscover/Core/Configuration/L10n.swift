@@ -19,6 +19,7 @@ enum L10n {
         static let insightSubtitle = LocalizedStringResource("See the patterns in your favorites")
         static let whereToStream = LocalizedStringResource("Where to Stream")
         static let exploreGenres = LocalizedStringResource("Explore by Genre")
+        static let recommended = LocalizedStringResource("Recommended for You")
     }
     
     enum You {

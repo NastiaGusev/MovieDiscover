@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     @State private var viewModel = HomeViewModel()
     @State private var streamingViewModel = StreamingViewModel()
     @State private var path = NavigationPath()
-    
+    @Query private var favorites: [FavoriteMovie]
+
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
@@ -32,7 +34,11 @@ struct HomeView: View {
                     }
                 }
             }
-            .task { await viewModel.onAppear() }
+            .task {
+                await viewModel.onAppear(
+                    favoriteGenreIDs: favorites.flatMap { $0.genreIDs ?? [] }
+                )
+            }
             .navigationDestination(for: Movie.self) { movie in
                 MovieDetailView(movie: movie)
             }
@@ -55,7 +61,7 @@ struct HomeView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func sectionView(_ section: HomeSection) -> some View {
         switch section {
@@ -64,26 +70,25 @@ struct HomeView: View {
                         backdropURL: viewModel.heroBackdropURL) { query in
                 path.append(MoodQuery(text: query))
             }
+        case .forYou(_, let movies):
+            if !movies.isEmpty {
+                MovieCarousel(title: String(localized: L10n.Home.recommended),
+                              movies: movies)
+            }
         case .row(let row):
             MovieCarousel(title: row.title, movies: row.movies, cardSize: row.cardSize) {
                 path.append(row.source)
             }
-        case .forYou(let blurb, let movies):
-            if !movies.isEmpty {
-                MovieCarousel(title: blurb ?? String(localized: L10n.Home.forYou), movies: movies)
-            }
-        case .insightTeaser(let topGenre):
-            HomeInsightTeaser(topGenre: topGenre)
-        case .whereToStream:
-            StreamingSectionView(viewModel: streamingViewModel,
-                                 onSeeAll: { path.append(StreamingBrowserRoute()) })
         case .genreExplore(let genres):
             GenreExploreGrid(genres: genres, images: viewModel.genreImages) { genre in
                 path.append(GenreBrowseRoute(genres: genres, selectedID: genre.id))
             }
+        case .whereToStream:
+            StreamingSectionView(viewModel: streamingViewModel,
+                                 onSeeAll: { path.append(StreamingBrowserRoute()) })
         }
     }
-    
+
     private func title(for source: RowSource) -> String {
         switch source {
         case .trending: String(localized: L10n.Home.trending)

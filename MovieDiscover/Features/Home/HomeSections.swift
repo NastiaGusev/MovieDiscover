@@ -87,23 +87,3 @@ struct HomeMoodBar: View {
         onSubmit(trimmed)
     }
 }
-
-struct HomeInsightTeaser: View {
-    let topGenre: String?
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(String(localized: L10n.Home.insightTitle)).font(.headline)
-                Text(String(localized: L10n.Home.insightSubtitle))
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Spacer()
-            Image(systemName: "chart.bar.fill").font(.title2).foregroundStyle(.tint)
-        }
-        .padding()
-        .background(Color.placeholder)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg))
-        .padding(.horizontal)
-    }
-}
